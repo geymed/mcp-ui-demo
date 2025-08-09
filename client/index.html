@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP-UI Demo</title>
+  </head>
+  <body>
+    <h1>MCP-UI Demo (Web Component)</h1>
+
+    <!-- The Web Component renderer -->
+    <ui-resource-renderer id="renderer"></ui-resource-renderer>
+
+    <script type="module">
+      import '@mcp-ui/client/dist/ui-resource-renderer.wc.js';
+
+      // Allow overriding the server origin at deploy time via env (Vercel) or a global.
+      const SERVER_ORIGIN = (window.SERVER_ORIGIN || import.meta.env?.SERVER_ORIGIN || window.__SERVER_ORIGIN__) ?? 'http://localhost:8787';
+
+      async function loadResource() {
+        const resp = await fetch(`${SERVER_ORIGIN}/tool/ui`);
+        const data = await resp.json();
+        const resource = data.resource;
+
+        const renderer = document.getElementById('renderer');
+        renderer.setAttribute('resource', JSON.stringify(resource));
+
+        renderer.addEventListener('onUIAction', async (event) => {
+          const detail = event.detail;
+          if (detail?.type === 'tool' && detail?.payload?.toolName === 'performRollback') {
+            const res = await fetch(`${SERVER_ORIGIN}/tool/performRollback`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(detail.payload.params)
+            });
+            const json = await res.json();
+            alert(`Server says: ${json.message}`);
+          }
+        });
+      }
+
+      loadResource();
+    </script>
+  </body>
+</html>

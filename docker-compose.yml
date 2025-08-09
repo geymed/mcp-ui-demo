@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - UI_MODE=remoteDom
+    ports:
+      - "8787:8787"
+    networks:
+      - mcpnet
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_ORIGIN=http://localhost:8787
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+    networks:
+      - mcpnet
+
+networks:
+  mcpnet:
+    driver: bridge

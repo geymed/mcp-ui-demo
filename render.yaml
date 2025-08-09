@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: mcp-ui-demo-server
+    env: docker
+    rootDir: server
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: UI_MODE
+        value: remoteDom
